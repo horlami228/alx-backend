@@ -41,13 +41,7 @@ class Server:
 
     def get_page(self, page: int = 1, page_size: int = 10) -> List[List]:
         """
-            This function takes two interger args
-        args:
-            page: page number
-            page_size: the size of one page
-
-        returns:
-            A tuple with the starting index and end index
+            Get the elements for a page number
         """
 
         assert type(page) is int and type(page_size) is int
