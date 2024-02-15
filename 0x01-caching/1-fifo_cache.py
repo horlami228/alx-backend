@@ -2,6 +2,7 @@
 
 """FIFO system"""
 from base_caching import BaseCaching
+from threading import RLock
 
 
 class FIFOCache(BaseCaching):
@@ -10,23 +11,27 @@ class FIFOCache(BaseCaching):
     def __init__(self):
         """Initialize the class"""
         super().__init__()
+        self._keys = []
+        self._Rlock = RLock()
 
     def put(self, key, item):
         """Putting item in the dictionary"""
 
-        if key is None or item is None:
-            return
+        with self._Rlock:
+            if key is None or item is None:
+                return
 
-        if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-            """sort the keys"""
-            keys = [key for key in sorted(self.cache_data.keys())]
-            '''discard the first key'''
+            if key in self.cache_data:
+                self.cache_data[key] = item
 
-            print(f"DISCARD: {keys[0]}")
-            deleted_key = keys[0]
-            del self.cache_data[deleted_key]
+            else:
+                if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                    deleted_key = self._keys.pop(0)
+                    self.cache_data.pop(deleted_key)
+                    print(f"DISCARD: {deleted_key}")
 
-        self.cache_data[key] = item
+                self.cache_data[key] = item
+                self._keys.append(key)
 
     def get(self, key):
         """
