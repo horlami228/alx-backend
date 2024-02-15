@@ -21,16 +21,13 @@ class LRUCache(BaseCaching):
         with self._Rlock:
             if key is None or item is None:
                 return
-            if key in self.cache_data:
-                self.cache_data[key] = item
-                self.cache_data.move_to_end(key)
-            else:
-                if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                    poped_item = self.cache_data.popitem(last=False)
-                    print(f"DISCARD {poped_item[0]}")
 
-                self.cache_data[key] = item
-                self.cache_data.move_to_end(key)
+            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                poped_item = self.cache_data.popitem(last=False)
+                print(f"DISCARD: {poped_item[0]}")
+
+            self.cache_data[key] = item
+            self.cache_data.move_to_end(key)
 
     def get(self, key):
         """Access the cached data"""
