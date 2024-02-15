@@ -7,6 +7,9 @@ from collections import OrderedDict
 
 
 class LRUCache(BaseCaching):
+
+    """defines a Least Recently Used Algorithm"""
+
     def __init__(self):
         """initialize a new LRU system"""
         super().__init__()
