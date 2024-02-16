@@ -14,33 +14,34 @@ class MRUCache(BaseCaching):
         """initialize a new MRU system"""
         super().__init__()
         self._Rlock = RLock()
-        self.cache_data = OrderedDict()
+        self.key_order = []
 
     def put(self, key, item):
         """MRU algorithm setup"""
         with self._Rlock:
-            if key is None or item is None:
-                return
-
-            if key in self.cache_data:
-                self.cache_data[key] = item
-                self.cache_data.move_to_end(key)
-
-            else:
-                if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-                    poped_item = self.cache_data.popitem(last=True)
-                    print(f"DISCARD: {poped_item[0]}")
-
-                self.cache_data[key] = item
-                self.cache_data.move_to_end(key)
+            if key is not None and item is not None:
+                if key in self.cache_data:
+                    # Update the order as this key
+                    # is now the most recently used
+                    self.key_order.remove(key)
+                    self.key_order.append(key)
+                else:
+                    if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                        # Evict the most recently used item,
+                        # which is the last item in key_order
+                        discarded = self.key_order.pop()
+                        self.cache_data.pop(discarded)
+                        print(f"DISCARD: {discarded}")
+                    self.cache_data[key] = item
+                    self.key_order.append(key)
 
     def get(self, key):
         """Access the cached data"""
         with self._Rlock:
-            data = self.cache_data.get(key, None)
-
-            if data:
-                self.cache_data.move_to_end(key)
-                return data
-            else:
+            if key is None or key not in self.cache_data:
                 return None
+            else:
+                # Update the order as this key is now the most recently used
+                self.key_order.remove(key)
+                self.key_order.append(key)
+                return self.cache_data[key]
