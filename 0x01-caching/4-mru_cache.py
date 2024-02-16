@@ -27,7 +27,7 @@ class MRUCache(BaseCaching):
                 self.cache_data.move_to_end(key)
 
             else:
-                if len(self.cache_data) == BaseCaching.MAX_ITEMS:
+                if len(self.cache_data) > BaseCaching.MAX_ITEMS:
                     poped_item = self.cache_data.popitem(last=True)
                     print(f"DISCARD: {poped_item[0]}")
 
